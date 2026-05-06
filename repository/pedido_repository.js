@@ -57,8 +57,6 @@ async function atualizar(codigo, novaSituacao) {
 }
 
 
-
-
 //US05 –Deletar um pedido
 
 async function deletar(codigo) {
