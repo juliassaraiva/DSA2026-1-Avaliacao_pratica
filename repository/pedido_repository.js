@@ -1,88 +1,65 @@
-let listaPedidos = [];
-let autoIncrement = 1;
+//com conexão com o banco de dados
 
-//US02 – Listagem de pedidos
+const { client } = require("./db");
+
+// US02 – Listar pedidos
 async function listar() {
-    return listaPedidos;
+    const result = await client.query("SELECT * FROM produtos");
+    return result.rows;
 }
 
+// US03 – Buscar por ID
+async function buscarPorId(codigo) {
+    const sql = "SELECT * FROM produtos WHERE id = $1";
+    const result = await client.query(sql, [codigo]);
 
-//US03 – Consulta de um pedido
-
-async function buscarPedido(codigo) {
-    return listaPedidos.find(pedido => pedido.codigo === codigo);
+    return result.rows[0];
 }
 
-
-//US01 – Inclusão de um novo pedido
-
+// US01 – Inserir pedido
 async function inserir(pedido) {
-    if (
-        !pedido ||
-        !pedido.clienteCpf ||
-        !pedido.clienteNome ||
-        !pedido.produtoNome ||
-        pedido.produtoPreco === undefined
-    ) {
-        throw "Dados obrigatórios do pedido não informados";
-    }
+    const sql = `
+        INSERT INTO produtos (nome, categoria, preco)
+        VALUES ($1, $2, $3)
+        RETURNING *;
+    `;
 
-    pedido.codigo = autoIncrement++;
-    pedido.dataHora = new Date();
-    pedido.situacao = "aberto";
+    const valores = [
+        pedido.produtoNome,   // nome
+        pedido.clienteNome,   // categoria (adaptado)
+        pedido.produtoPreco   // preco
+    ];
 
-    listaPedidos.push(pedido);
-    return pedido;
+    const result = await client.query(sql, valores);
+
+    return result.rows[0];
 }
 
+// US04 – Atualizar (aqui estamos atualizando o preço)
+async function atualizar(codigo, novoPreco) {
+    const sql = `
+        UPDATE produtos
+        SET preco = $1
+        WHERE id = $2
+        RETURNING *;
+    `;
 
-//US04 –Atualizar a situação de um pedido
+    const result = await client.query(sql, [novoPreco, codigo]);
 
-async function atualizar(codigo, novaSituacao) {
-    const indice = listaPedidos.findIndex(
-        pedido => pedido.codigo === codigo
-    );
-
-    if (indice < 0) {
-        throw "Pedido não encontrado";
-    }
-
-    const situacoesValidas = ["aberto", "pago", "finalizado"];
-    if (!situacoesValidas.includes(novaSituacao)) {
-        throw "Situação inválida";
-    }
-
-    listaPedidos[indice].situacao = novaSituacao;
-    return listaPedidos[indice];
+    return result.rows[0];
 }
 
-
-//US05 –Deletar um pedido
-
+// US05 – Deletar
 async function deletar(codigo) {
-    const indice = listaPedidos.findIndex(
-        pedido => pedido.codigo === codigo
-    );
-
-    if (indice < 0) {
-        throw "Pedido não encontrado";
-    }
-
-    return listaPedidos.splice(indice, 1)[0];
+    const sql = "DELETE FROM produtos WHERE id = $1";
+    await client.query(sql, [codigo]);
 }
-
 
 module.exports = {
     listar,
+    buscarPorId,
     inserir,
-    buscarPedido,
     atualizar,
-    deletar,    
-}
-
-
-
-
-
-
-
+    deletar
+};
+``

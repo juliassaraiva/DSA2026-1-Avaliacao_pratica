@@ -1,112 +1,99 @@
-//[R01] O CPF do cliente é obrigatório.
-//[R02] O CPF deve ser numérico e possuir 9 algarismos.
+//validações
 
-function validaCpf(clienteCpf) {
-    if(!clienteCpf)
-        throw "CPF do cliente é obrigatório";
-    if(clienteCpf.trim().length = 9 )
-        throw "CPF do cliente deve ter no minimo 9 caracteres";
+//validação do cpf do cliente
+function validarCpf(clienteCpf) {
+    //verifica se o cpf do cliente foi informado
+    if (!clienteCpf) {
+        throw new Error("CPF do cliente é obrigatório");
+    }
+    //verifica se o cpf informado tem 9 digitos(números)
+    if (!/^\d{9}$/.test(clienteCpf)) {
+        throw new Error("CPF deve conter 9 dígitos numéricos");
+    }
+}
+//valida nome do cliente
+function validarNome(clienteNome) {
+    //verifica se o nome do cliente foi informado
+    if (!clienteNome) {
+        throw new Error("Nome do cliente é obrigatório");
+    }
+    //remove espaços e verifica se o nome tem pelo menos 5 caracrteres
+    if (clienteNome.trim().length < 5) {
+        throw new Error("Nome do cliente deve ter no mínimo 5 caracteres");
+    }
 }
 
-
-//[R03] O nome do cliente é obrigatório.
-//[R04] O nome do cliente deve ter pelo menos 5 caracteres.
-
-function validaNome(clienteNome) {
-    if(!clienteNome)
-        throw "O nome do cliente é obrigatório";
-    if(clienteNome.trim().length < 5)
-        throw "Nome do cliente deve ter no minimo 5 caracteres";
+//validação do produto
+function validarNomeProduto(produtoNome) {
+    //verifica se o nome do produto foi informado
+    if (!produtoNome) {
+        throw new Error("Nome do produto é obrigatório");
+    }
+    //remove espaços e verifica se o nome tem pelo menos 5 caracrteres
+    if (produtoNome.trim().length < 5) {
+        throw new Error("Nome do produto deve ter no mínimo 5 caracteres");
+    }
 }
 
+//validação do preço
+function validarPrecoProduto(produtoPreco) {
+    if (produtoPreco === null || produtoPreco === undefined) {
+        throw new Error("Preço do produto é obrigatório");
+    }
 
-//[R05] O nome do produto é obrigatório.
-//[R06] O nome do produto deve ter pelo menos 5 caracteres.
-
-function validaNomeProduto(produtoNome) {
-    if(!produtoNome)
-        throw "O nome do produto é obrigatório";
-    if(produtoNome.trim().length < 5)
-        throw "Nome do produto deve ter no minimo 5 caracteres";
+    if (typeof produtoPreco !== "number" || produtoPreco <= 0) {
+        throw new Error("Preço deve ser um número positivo");
+    }
 }
 
-//[R07] O preço do produto é obrigatório.
-//[R08] O preço do produto deve ser um número positivo.
+//validação completa do pedido com todas as validações elencadas acima
 
-function validaPrecoProduto(produtoPreco) {
-    if(produtoPreco === null || produtoPreco === undefined)
-        throw "O preço do produto é obrigatório";
-    if(typeof produtoPreco !=="number" || produtoPreco< 0)
-        throw "Preço do produto deve ser um número positivo";
+function validarPedido(pedido) {
+    //verifica se o pedido existe
+    if (!pedido) {
+        throw new Error("Pedido é obrigatório");
+    }
+    //valida cada campo do pedido, conforme a validação especifica
+    validarCpf(pedido.clienteCpf);
+    validarNome(pedido.clienteNome);
+    validarNomeProduto(pedido.produtoNome);
+    validarPrecoProduto(pedido.produtoPreco);
 }
 
-
-//[R09] O pedido deve ter preenchido automaticamente o código, a dataHora (atual) e a situação como “aberto”.
-
-function validaPedido(codigo, dataHora, situacao) {
-    if(!codigo)
-        throw "O código é obrigatório e deve ser preenchido automaticamente";
-    if(!dataHora !== new Date())
-        throw "A data é obrigatória e deve ser preenchido automaticamente com a data atual";
-        validaSituacao(situacao);
-}
-
-/*[R01] A listagem deve retornar os pedidos cadastrados de acordo com o seguinte critério de filtragem (opcional):
-- situação
-[R02] Caso especificada a situação, deve permitir somente os valores “aberto”,  “pago” e “finalizado”*/
-
-function validaSituacao(situacao) {
+//valida a situação do pedido
+function validarSituacao(situacao) {
+    //lista as situações possíveis/permitidas
     const situacoesValidas = ["aberto", "pago", "finalizado"];
+    //verifica se a situação foi informada
+    if (!situacao) {
+        throw new Error("Situação é obrigatória");
+    }
+    //verifica se a situação informada é permitida
+    if (!situacoesValidas.includes(situacao)) {
+        throw new Error("Situação inválida");
+    }
+}
 
-    if (!situacao)
-        throw "A situação do pedido é obrigatória";
-
-    if (!situacoesValidas.includes(situacao))
-        throw "Situação inválida. Use: aberto, pago ou finalizado";
+//valida o código do pedido
+function validarCodigo(codigo) {
+    //verifica se o código foi informado
+    if (codigo === null || codigo === undefined) {
+        throw new Error("Código é obrigatório");
+    }
+    //verifica se o código informado é numérico
+    if (isNaN(codigo)) {
+        throw new Error("Código deve ser numérico");
+    }
 }
 
 
-//[R01] O código do produto é obrigatório
-//[R02] O código do produto deve ser um número
-
-function validaCodigo(codigo) {
-    if(codigo == null || codigo === undefined)
-        throw "Código do produto é obrigatório";
-    if(typeof codigo !== "number")
-        throw "Código do produto deve ser um número";
-}
-
-
-/*[R03] A situação do pedido é obrigatória        
-[R04] A situação só permite os valores “aberto”,  “pago” e “finalizado”*/
-
-function validaCliente(cliente) {
-    if (!cliente)
-        throw "Cliente é obrigatório";
-
-    validaCpf(cliente.cpf);
-    validaNome(cliente.nome);
-}
-
-
-function validaProduto(produto) {
-    if (!produto)
-        throw "Produto é obrigatório";
-
-    validaCodigo(produto.codigo);
-    validaNomeProduto(produto.nome);
-    validaPrecoProduto(produto.preco);
-}
-
-
+//Exporta as funções para validação (usadas no service)
 module.exports = {
-    validaCliente,
-    validaProduto,
-    validaPedido
-}
-
-
-
-
-
-
+    validarCpf,
+    validarNome,
+    validarNomeProduto,
+    validarPrecoProduto,
+    validarPedido,
+    validarSituacao,
+    validarCodigo
+};
