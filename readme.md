@@ -42,7 +42,16 @@ git status
 
 ## 5.B - Adiciona os arquivos alterados
 
-add . 
+git add . 
+
+## 5.C - Cria um commit 
+
+git commit -m "Atualiza README e documentação final"
+
+## 5.D - Envia para o Github (branche master, neste caso)
+
+git push origin master
+
 
 ## Endpoints disponíveis
 
